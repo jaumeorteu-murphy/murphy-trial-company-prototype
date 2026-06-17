@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Murphy Back Office · New Trial Company (Prototype)</title>
+<style>
+  /* Design tokens mirrored from backoffice src/app/globals.css (HSL) */
+  :root{
+    --background:0 0% 100%;
+    --background-secondary:0 0% 98%;
+    --foreground:222.2 84% 4.9%;
+    --card:0 0% 100%;
+    --primary:255 100% 62%;
+    --primary-foreground:0 0% 100%;
+    --primary-light:255 100% 95%;
+    --secondary:220 14.3% 95.9%;
+    --muted:220 14.3% 95.9%;
+    --muted-foreground:220 8.9% 46.1%;
+    --accent:220 14.3% 95.9%;
+    --warning:43 96% 56%;
+    --status-success:142 76% 36%;
+    --destructive:0 84.2% 60.2%;
+    --border:214.3 31.8% 91.4%;
+    --input:214.3 31.8% 91.4%;
+    --ring:222.2 84% 4.9%;
+    --sidebar-background:0 0% 98%;
+    --sidebar-foreground:240 5.3% 26.1%;
+    --radius:0.5rem;
+    --shadow-sm:0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;overscroll-behavior:none;}
+  body{
+    background:hsl(var(--background));
+    color:hsl(var(--foreground));
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;
+    display:flex;min-height:100vh;
+  }
+  .muted{color:hsl(var(--muted-foreground));}
+
+  /* ---------------- Sidebar (matches shadcn sidebar tokens) ---------------- */
+  .sidebar{
+    width:256px;flex:0 0 256px;background:hsl(var(--sidebar-background));
+    border-right:1px solid hsl(var(--border));padding:12px;position:sticky;top:0;height:100vh;overflow:auto;
+  }
+  .app-switch{
+    width:100%;display:flex;align-items:center;gap:8px;background:hsl(var(--primary));color:hsl(var(--primary-foreground));
+    border:1px solid hsl(var(--primary));border-radius:var(--radius);padding:12px 12px;font-weight:500;font-size:14px;cursor:default;
+  }
+  .app-switch .chev{margin-left:auto;opacity:.85;}
+  .nav-group{font-size:11px;letter-spacing:.04em;color:hsl(var(--muted-foreground));font-weight:600;margin:16px 8px 6px;}
+  .nav-item{
+    display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius);
+    color:hsl(var(--sidebar-foreground));font-size:14px;cursor:pointer;margin-bottom:1px;
+  }
+  .nav-item svg{width:16px;height:16px;flex:0 0 auto;opacity:.9;}
+  .nav-item:hover{background:hsl(var(--primary-light)/.5);color:hsl(var(--primary));}
+  .nav-item.active{background:hsl(var(--primary-light));color:hsl(var(--primary));font-weight:500;}
+
+  /* ---------------- Main ---------------- */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{
+    height:53px;border-bottom:1px solid hsl(var(--border));background:hsl(var(--background));
+    display:flex;align-items:center;gap:12px;padding:0 24px;position:sticky;top:0;z-index:5;
+  }
+  .crumbs{color:hsl(var(--muted-foreground));font-size:13.5px;}
+  .crumbs b{color:hsl(var(--foreground));font-weight:600;}
+  .cmdk{margin-left:auto;display:flex;align-items:center;gap:7px;border:1px solid hsl(var(--border));border-radius:var(--radius);
+    padding:5px 9px;color:hsl(var(--muted-foreground));font-size:12.5px;background:hsl(var(--background-secondary));}
+  .kbd{border:1px solid hsl(var(--border));border-radius:4px;padding:0 5px;font-size:11px;background:#fff;}
+
+  .content{padding:24px;max-width:900px;width:100%;margin:0 auto;}
+  .page-title{display:flex;align-items:center;gap:10px;}
+  .page-title .ti{width:34px;height:34px;border-radius:var(--radius);background:hsl(var(--primary-light));color:hsl(var(--primary));display:grid;place-items:center;}
+  .page-title h1{font-size:22px;margin:0;font-weight:600;letter-spacing:-.01em;}
+  .page-sub{color:hsl(var(--muted-foreground));margin:8px 0 0;max-width:680px;}
+  .trial-badge{display:inline-flex;align-items:center;gap:6px;background:hsl(var(--primary-light));color:hsl(var(--primary));
+    font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:6px;vertical-align:middle;margin-left:8px;border:1px solid hsl(var(--primary)/.25);}
+
+  /* ---------------- Card (shadcn: rounded-lg border bg-card shadow-sm) ---------------- */
+  .card{background:hsl(var(--card));border:1px solid hsl(var(--border));border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-top:16px;}
+  .card-header{display:flex;align-items:center;gap:11px;padding:18px 24px;border-bottom:1px solid hsl(var(--border));}
+  .card-header .n{width:24px;height:24px;border-radius:6px;background:hsl(var(--primary-light));color:hsl(var(--primary));font-weight:600;font-size:12px;display:grid;place-items:center;flex:0 0 auto;}
+  .card-header h3{margin:0;font-size:16px;font-weight:600;letter-spacing:-.01em;}
+  .card-header .hint{margin-left:auto;color:hsl(var(--muted-foreground));font-size:12.5px;}
+  .card-content{padding:24px;}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .field{display:flex;flex-direction:column;gap:7px;}
+  .field.full{grid-column:1/-1;}
+  label.lbl{font-size:13px;font-weight:500;color:hsl(var(--foreground));display:flex;align-items:center;gap:5px;}
+  .req{color:hsl(var(--destructive));}
+  .opt{color:hsl(var(--muted-foreground));font-weight:400;}
+  .help{font-size:12px;color:hsl(var(--muted-foreground));}
+
+  /* inputs (shadcn input: h-10 rounded-md border-input) */
+  input,select,textarea{
+    font-family:inherit;font-size:14px;color:hsl(var(--foreground));background:hsl(var(--background));
+    border:1px solid hsl(var(--input));border-radius:calc(var(--radius) - 2px);
+    height:40px;padding:0 12px;width:100%;outline:none;transition:box-shadow .1s,border-color .1s;
+  }
+  textarea{height:auto;min-height:72px;padding:9px 12px;resize:vertical;}
+  input:focus,select:focus,textarea:focus{outline:2px solid hsl(var(--ring));outline-offset:1px;}
+  input.invalid,select.invalid{border-color:hsl(var(--destructive));}
+  input::placeholder,textarea::placeholder{color:hsl(var(--muted-foreground));}
+
+  .code-preview{margin-top:14px;display:flex;align-items:center;gap:10px;background:hsl(var(--background-secondary));
+    border:1px solid hsl(var(--border));border-radius:calc(var(--radius) - 2px);padding:10px 12px;font-size:13px;}
+  .code-preview .lbl{color:hsl(var(--muted-foreground));}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+  .code-val{font-family:ui-monospace,Menlo,monospace;background:hsl(var(--secondary));border:1px solid hsl(var(--border));border-radius:5px;padding:2px 8px;color:hsl(var(--foreground));}
+
+  /* members */
+  .member-row{display:grid;grid-template-columns:1.3fr 1fr auto auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid hsl(var(--border));}
+  .member-row:first-child{padding-top:0;}
+  .member-row:last-of-type{border-bottom:none;}
+  .primary-toggle{display:flex;align-items:center;gap:6px;font-size:13px;color:hsl(var(--muted-foreground));white-space:nowrap;cursor:pointer;}
+  .primary-toggle input{width:16px;height:16px;height:16px;accent-color:hsl(var(--primary));}
+  .icon-btn{border:1px solid hsl(var(--input));background:hsl(var(--background));border-radius:calc(var(--radius) - 2px);
+    width:40px;height:40px;cursor:pointer;color:hsl(var(--muted-foreground));display:grid;place-items:center;}
+  .icon-btn:hover{background:hsl(var(--accent));color:hsl(var(--destructive));}
+  .icon-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .add-btn{margin-top:14px;border:1px dashed hsl(var(--primary)/.4);background:hsl(var(--primary-light)/.5);color:hsl(var(--primary));
+    border-radius:calc(var(--radius) - 2px);height:40px;font-weight:500;font-size:14px;cursor:pointer;width:100%;font-family:inherit;}
+  .add-btn:hover{background:hsl(var(--primary-light));}
+  .role-note{margin-top:12px;font-size:13px;color:hsl(var(--muted-foreground));}
+  .role-chip{display:inline-block;background:hsl(var(--primary-light));color:hsl(var(--primary));font-weight:500;border-radius:5px;padding:1px 7px;font-size:12px;}
+
+  /* chips (toggle) */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;}
+  .chip-opt{border:1px solid hsl(var(--input));background:hsl(var(--background));border-radius:999px;padding:8px 14px;font-size:13.5px;cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;}
+  .chip-opt .tick{width:16px;height:16px;border-radius:5px;border:1.5px solid hsl(var(--muted-foreground));display:grid;place-items:center;}
+  .chip-opt .tick svg{width:11px;height:11px;color:#fff;opacity:0;}
+  .chip-opt.sel{border-color:hsl(var(--primary));background:hsl(var(--primary-light));color:hsl(var(--primary));font-weight:500;}
+  .chip-opt.sel .tick{background:hsl(var(--primary));border-color:hsl(var(--primary));}
+  .chip-opt.sel .tick svg{opacity:1;}
+
+  .confirm-wrap{margin-top:16px;}
+  .cap-note{display:flex;align-items:center;gap:8px;color:hsl(var(--muted-foreground));font-size:13px;margin-top:14px;}
+  .cap-badge{background:hsl(var(--status-success)/.12);color:hsl(var(--status-success));font-weight:600;border-radius:999px;padding:2px 9px;font-size:11.5px;}
+
+  /* action bar */
+  .actionbar{position:sticky;bottom:0;background:hsl(var(--background));border-top:1px solid hsl(var(--border));
+    padding:14px 24px;display:flex;align-items:center;gap:14px;margin-top:20px;}
+  .actionbar .sum{color:hsl(var(--muted-foreground));font-size:13.5px;}
+  .actionbar .sum b{color:hsl(var(--foreground));font-weight:600;}
+  .spacer{flex:1;}
+  /* buttons (shadcn: h-10 rounded-md) */
+  .btn{height:40px;border-radius:calc(var(--radius) - 2px);padding:0 16px;font-weight:500;font-size:14px;cursor:pointer;border:1px solid transparent;font-family:inherit;display:inline-flex;align-items:center;gap:8px;}
+  .btn.outline{background:hsl(var(--background));border-color:hsl(var(--input));color:hsl(var(--foreground));}
+  .btn.outline:hover{background:hsl(var(--accent));}
+  .btn.primary{background:hsl(var(--primary));color:hsl(var(--primary-foreground));}
+  .btn.primary:hover{background:hsl(var(--primary)/.9);}
+  .btn.primary:disabled{opacity:.5;cursor:not-allowed;}
+
+  /* ---------------- Overlay (provisioning + success) ---------------- */
+  .overlay{position:fixed;inset:0;background:rgb(15 23 42 / .5);display:none;align-items:center;justify-content:center;z-index:50;}
+  .overlay.show{display:flex;}
+  .sheet{background:hsl(var(--card));border-radius:var(--radius);width:540px;max-width:92vw;box-shadow:0 24px 70px rgb(2 6 23 / .35);overflow:hidden;}
+  .sheet .sh{padding:20px 24px;border-bottom:1px solid hsl(var(--border));}
+  .sheet .sh h2{margin:0;font-size:18px;font-weight:600;}
+  .sheet .sh p{margin:5px 0 0;color:hsl(var(--muted-foreground));font-size:13px;}
+  .sheet .sb{padding:6px 24px 18px;}
+  .step{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid hsl(var(--border));}
+  .step:last-child{border-bottom:none;}
+  .step .dot{width:22px;height:22px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;font-size:12px;
+    border:2px solid hsl(var(--border));color:hsl(var(--muted-foreground));background:#fff;}
+  .step .lbl{font-size:13.5px;color:hsl(var(--muted-foreground));}
+  .step.run .dot{border-color:hsl(var(--primary));border-top-color:transparent;animation:spin .7s linear infinite;}
+  .step.run .lbl{color:hsl(var(--foreground));font-weight:500;}
+  .step.done .dot{background:hsl(var(--status-success));border-color:hsl(var(--status-success));color:#fff;}
+  .step.done .lbl{color:hsl(var(--foreground));}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .success{text-align:center;padding:12px 6px 4px;}
+  .success .big{width:54px;height:54px;border-radius:50%;background:hsl(var(--status-success)/.12);color:hsl(var(--status-success));display:grid;place-items:center;margin:6px auto 12px;}
+  .success h2{margin:0 0 4px;font-size:19px;font-weight:600;}
+  .success p{margin:0;color:hsl(var(--muted-foreground));font-size:13.5px;}
+  .summary{text-align:left;background:hsl(var(--background-secondary));border:1px solid hsl(var(--border));border-radius:calc(var(--radius) - 2px);padding:14px 16px;margin:16px 0 4px;}
+  .summary .row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;font-size:13px;}
+  .summary .row span{color:hsl(var(--muted-foreground));}
+  .summary .row b{color:hsl(var(--foreground));text-align:right;font-weight:600;}
+  .sheet .sf{padding:14px 24px;border-top:1px solid hsl(var(--border));display:flex;gap:10px;justify-content:flex-end;}
+
+  .proto-tag{position:fixed;left:12px;bottom:12px;z-index:60;background:hsl(var(--foreground));color:#fff;font-size:11px;font-weight:600;
+    padding:5px 10px;border-radius:999px;opacity:.85;}
+  @media(max-width:840px){.sidebar{display:none;}.grid{grid-template-columns:1fr;}.member-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="app-switch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/></svg>
+      Companies <span class="chev">⌄</span>
+    </div>
+
+    <div class="nav-group">Companies</div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+      New trial company
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/></svg>
+      All companies
+    </div>
+
+    <div class="nav-group">Configurations</div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> Agents</div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg> Product Categories</div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg> Payment Instructions</div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Phone Configurations</div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg> Pronunciation Dicts</div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Email Configurations</div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> SMS/RCS Configurations</div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg> Policies</div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="crumbs">Companies / <b>New trial company</b></div>
+      <div class="cmdk">Search <span class="kbd">⌘</span><span class="kbd">K</span></div>
+    </div>
+
+    <div class="content">
+      <div class="page-title">
+        <span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/></svg></span>
+        <h1>New trial company <span class="trial-badge">● Trial</span></h1>
+      </div>
+      <p class="page-sub">Provision a sandbox company so a prospect can self-load test debtors and watch the full recovery flow run. Config is assembled from templates &amp; shared channels.</p>
+
+      <form id="trialForm" autocomplete="off">
+
+        <!-- 1. Company -->
+        <div class="card">
+          <div class="card-header"><span class="n">1</span><h3>Company details</h3><span class="hint">Used to create &amp; configure the company</span></div>
+          <div class="card-content">
+            <div class="grid">
+              <div class="field">
+                <label class="lbl">Legal name <span class="req">*</span></label>
+                <input data-req name="legalName" placeholder="e.g. Debtia Gestión S.L." />
+              </div>
+              <div class="field">
+                <label class="lbl">On-behalf-of / display name <span class="opt">(heard in calls &amp; emails)</span></label>
+                <input name="onBehalfOf" placeholder="e.g. BBVA" />
+              </div>
+              <div class="field">
+                <label class="lbl">Company identifier <span class="req">*</span></label>
+                <input data-req data-code name="companyId" placeholder="e.g. debtia" />
+                <span class="help">Lowercase, no spaces — part of the company code.</span>
+              </div>
+              <div class="field">
+                <label class="lbl">On-behalf-of identifier <span class="opt">(optional)</span></label>
+                <input data-code name="oboId" placeholder="e.g. bbva" />
+              </div>
+              <div class="field">
+                <label class="lbl">Country <span class="req">*</span></label>
+                <select data-req data-code name="country">
+                  <option value="">Select…</option>
+                  <option value="es">Spain (ES)</option>
+                  <option value="pt">Portugal (PT)</option>
+                  <option value="fr">France (FR)</option>
+                  <option value="it">Italy (IT)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="lbl">Language <span class="req">*</span></label>
+                <select data-req name="language">
+                  <option value="">Select…</option>
+                  <option value="es">Spanish</option>
+                  <option value="pt">Portuguese</option>
+                  <option value="en">English</option>
+                  <option value="fr">French</option>
+                  <option value="it">Italian</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="lbl">VAT number <span class="opt">(optional — default for trial)</span></label>
+                <input name="vat" value="B00000000" />
+              </div>
+              <div class="field">
+                <label class="lbl">Industry <span class="req">*</span></label>
+                <select data-req name="industry">
+                  <option value="">Select…</option>
+                  <option>Bank</option>
+                  <option>BNPL</option>
+                  <option>Utility</option>
+                  <option>Telco</option>
+                  <option>Insurance</option>
+                  <option>Consumer finance / Lending</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="lbl">Support email <span class="req">*</span></label>
+                <input data-req type="email" name="supportEmail" placeholder="support@prospect.com" />
+              </div>
+              <div class="field">
+                <label class="lbl">Support phone <span class="opt">(optional — fallback used if empty)</span></label>
+                <input name="supportPhone" value="+34 900 800 700" />
+              </div>
+              <div class="field">
+                <label class="lbl">Transfer phone <span class="opt">(optional)</span></label>
+                <input name="transferPhone" placeholder="+34 600 000 001" />
+              </div>
+              <div class="field">
+                <label class="lbl">Soft installments max interval (days) <span class="req">*</span></label>
+                <input data-req type="number" name="softDays" value="12" min="1" />
+              </div>
+            </div>
+            <div class="code-preview"><span class="lbl muted mono">company code →</span> <span class="code-val" id="codePreview">—</span></div>
+          </div>
+        </div>
+
+        <!-- 2. Members -->
+        <div class="card">
+          <div class="card-header"><span class="n">2</span><h3>Team members to invite</h3><span class="hint">Everyone who gets platform access</span></div>
+          <div class="card-content">
+            <div id="memberList"></div>
+            <button type="button" class="add-btn" id="addMember">+ Add member</button>
+            <div class="role-note">All invited members are assigned the <span class="role-chip">Trial</span> role and sign in with Google / Microsoft.</div>
+          </div>
+        </div>
+
+        <!-- 3. Strategy -->
+        <div class="card">
+          <div class="card-header"><span class="n">3</span><h3>Strategy setup</h3><span class="hint">We map these to ready-made templates</span></div>
+          <div class="card-content">
+            <div class="field full" style="margin-bottom:18px;">
+              <label class="lbl">Product categories <span class="req">*</span> <span class="opt">— pick one or more</span></label>
+              <div class="chips" id="catChips">
+                <div class="chip-opt" data-val="loans"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>Loans</div>
+                <div class="chip-opt" data-val="credit_cards"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>Credit cards</div>
+                <div class="chip-opt" data-val="consumer_finance"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>Consumer finance</div>
+              </div>
+            </div>
+            <div class="grid">
+              <div class="field">
+                <label class="lbl">Agent voice gender <span class="req">*</span></label>
+                <select data-req name="agentGender">
+                  <option value="">Select…</option>
+                  <option>Female</option><option>Male</option>
+                </select>
+              </div>
+            </div>
+            <div class="help" style="margin-top:12px;">The agent speaks the <b>company language</b> (set in step 1). Murphy selects the matching prepared <b>Mosaic</b> agent — the prospect never picks a specific voice.</div>
+          </div>
+        </div>
+
+        <div class="confirm-wrap">
+          <div class="cap-note"><span class="cap-badge">Limit 5</span> Members can self-load up to 5 test debtors in the front office.</div>
+        </div>
+
+        <div class="actionbar">
+          <div class="sum" id="formSum">Fill the required fields to continue</div>
+          <div class="spacer"></div>
+          <button type="button" class="btn outline" id="resetBtn">Reset</button>
+          <button type="submit" class="btn primary" id="submitBtn" disabled>Create trial company</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Provisioning / success overlay -->
+  <div class="overlay" id="overlay">
+    <div class="sheet">
+      <div id="provView">
+        <div class="sh"><h2>Provisioning trial company…</h2><p>Running the back-office steps in order. Nothing is public — all inside the VPN.</p></div>
+        <div class="sb" id="stepList"></div>
+      </div>
+      <div id="successView" style="display:none;">
+        <div class="sb">
+          <div class="success">
+            <div class="big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <h2 id="successName">Trial company is ready</h2>
+            <p>Invites are on their way. The prospect can log in and start loading test debtors.</p>
+          </div>
+          <div class="summary" id="successSummary"></div>
+        </div>
+        <div class="sf">
+          <button type="button" class="btn outline" id="anotherBtn">Create another</button>
+          <button type="button" class="btn primary" id="doneBtn">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="proto-tag">PROTOTYPE · not wired to a backend</div>
+
+<script>
+(function(){
+  const form = document.getElementById('trialForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const formSum = document.getElementById('formSum');
+  const codePreview = document.getElementById('codePreview');
+  const memberList = document.getElementById('memberList');
+  const LANG = {es:'Spanish',pt:'Portuguese',en:'English',fr:'French',it:'Italian'};
+  const langLabel = ()=> LANG[form.language.value] || '—';
+  const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  let memberSeq = 0;
+  function addMember(primary){
+    const row = document.createElement('div');
+    row.className = 'member-row';
+    row.innerHTML = `
+      <input data-member-email type="email" placeholder="name@prospect.com" />
+      <input data-member-name placeholder="Full name (optional)" />
+      <label class="primary-toggle"><input type="radio" name="primary" ${primary?'checked':''}/> Primary</label>
+      <button type="button" class="icon-btn" title="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>`;
+    row.querySelector('.icon-btn').addEventListener('click',()=>{ row.remove(); refreshMemberControls(); validate(); });
+    row.querySelectorAll('input').forEach(i=>i.addEventListener('input',validate));
+    memberList.appendChild(row);
+    refreshMemberControls();
+  }
+  function refreshMemberControls(){
+    const rows = memberList.querySelectorAll('.member-row');
+    rows.forEach(r=>{ r.querySelector('.icon-btn').disabled = rows.length<=1; });
+    if(rows.length && !memberList.querySelector('input[name="primary"]:checked')){
+      rows[0].querySelector('input[name="primary"]').checked = true;
+    }
+  }
+  document.getElementById('addMember').addEventListener('click',()=>{ addMember(false); validate(); });
+
+  document.querySelectorAll('#catChips .chip-opt').forEach(c=>{
+    c.addEventListener('click',()=>{ c.classList.toggle('sel'); validate(); });
+  });
+  function selectedCats(){ return [...document.querySelectorAll('#catChips .chip-opt.sel')].map(c=>c.dataset.val); }
+
+  function slug(v){ return (v||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+  function buildCode(){
+    const parts = [slug(form.oboId.value), slug(form.companyId.value), form.country.value].filter(Boolean);
+    return parts.length ? parts.join('-') : '';
+  }
+  function updateCode(){ codePreview.textContent = buildCode() || '—'; }
+  form.querySelectorAll('[data-code]').forEach(el=>el.addEventListener('input',()=>{updateCode();validate();}));
+
+  function memberEmails(){ return [...memberList.querySelectorAll('[data-member-email]')].map(i=>i.value.trim()).filter(Boolean); }
+  function emailOk(e){ return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e); }
+  function validate(){
+    let ok = true;
+    form.querySelectorAll('[data-req]').forEach(el=>{
+      const bad = !el.value.trim();
+      if(bad && el.dataset.touched) el.classList.add('invalid'); else el.classList.remove('invalid');
+      if(bad) ok = false;
+    });
+    const emails = memberEmails();
+    const emailsValid = emails.length>0 && emails.every(emailOk);
+    const catsOk = selectedCats().length>0;
+    const all = ok && emailsValid && catsOk;
+    submitBtn.disabled = !all;
+    const bits = [`<b>${emails.length||0}</b> member${emails.length===1?'':'s'}`,`<b>${selectedCats().length}</b> categor${selectedCats().length===1?'y':'ies'}`];
+    const code = buildCode(); if(code) bits.push(`code <b>${code}</b>`);
+    formSum.innerHTML = all ? `Ready — ${bits.join(' · ')}` : `Fill the required fields to continue`;
+    return all;
+  }
+  form.querySelectorAll('[data-req]').forEach(el=>{
+    el.addEventListener('blur',()=>{el.dataset.touched='1';validate();});
+    el.addEventListener('input',validate);
+  });
+
+  document.getElementById('resetBtn').addEventListener('click',()=>{
+    form.reset(); memberList.innerHTML=''; memberSeq=0; addMember(true);
+    document.querySelectorAll('#catChips .chip-opt').forEach(c=>c.classList.remove('sel'));
+    form.querySelectorAll('.invalid').forEach(e=>e.classList.remove('invalid'));
+    form.querySelectorAll('[data-req]').forEach(e=>delete e.dataset.touched);
+    updateCode(); validate();
+  });
+
+  const overlay = document.getElementById('overlay');
+  const stepList = document.getElementById('stepList');
+  const provView = document.getElementById('provView');
+  const successView = document.getElementById('successView');
+  const catLabel = v=>({loans:'Loans',credit_cards:'Credit cards',consumer_finance:'Consumer finance'}[v]);
+
+  function steps(){
+    const code = buildCode() || 'trial-co';
+    const emails = memberEmails();
+    const cats = selectedCats().map(catLabel);
+    return [
+      `Create company <span class="code-val">${code}</span>`,
+      `Send ${emails.length} invite${emails.length===1?'':'s'} · Trial role · Google/Microsoft`,
+      `Create product categories: ${cats.join(', ')}`,
+      `Set up Mosaic agent · ${langLabel()} · ${form.agentGender.value}`,
+      `Attach shared Murphy phone / SMS / email sender`,
+      `Copy policy pack &amp; remap productCategoryId → new categories`,
+    ];
+  }
+
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    if(!validate()) return;
+    provView.style.display='block'; successView.style.display='none';
+    stepList.innerHTML='';
+    const nodes = steps().map((l,i)=>{
+      const d=document.createElement('div'); d.className='step';
+      d.innerHTML=`<span class="dot">${i+1}</span><span class="lbl">${l}</span>`;
+      stepList.appendChild(d); return d;
+    });
+    overlay.classList.add('show');
+    let i=0;
+    (function run(){
+      if(i>0){ nodes[i-1].classList.remove('run'); nodes[i-1].classList.add('done'); nodes[i-1].querySelector('.dot').innerHTML=CHECK; }
+      if(i>=nodes.length) return finish();
+      nodes[i].classList.add('run'); i++; setTimeout(run, 850);
+    })();
+  });
+
+  function finish(){
+    const code = buildCode() || 'trial-co';
+    const emails = memberEmails();
+    const cats = selectedCats().map(catLabel);
+    document.getElementById('successName').textContent = `${form.legalName.value || 'Trial company'} is ready`;
+    document.getElementById('successSummary').innerHTML = `
+      <div class="row"><span>Company code</span><b><span class="code-val">${code}</span></b></div>
+      <div class="row"><span>Industry</span><b>${form.industry.value}</b></div>
+      <div class="row"><span>Members invited</span><b>${emails.length} · Trial role</b></div>
+      <div class="row"><span>Login</span><b>Google / Microsoft</b></div>
+      <div class="row"><span>Product categories</span><b>${cats.join(', ')}</b></div>
+      <div class="row"><span>Agent</span><b>${langLabel()}, ${form.agentGender.value}</b></div>
+      <div class="row"><span>Channels</span><b>Shared Murphy number &amp; senders</b></div>
+      <div class="row"><span>Debtor cap</span><b>5 per company</b></div>`;
+    setTimeout(()=>{ provView.style.display='none'; successView.style.display='block'; }, 450);
+  }
+
+  document.getElementById('doneBtn').addEventListener('click',()=>overlay.classList.remove('show'));
+  document.getElementById('anotherBtn').addEventListener('click',()=>{ overlay.classList.remove('show'); document.getElementById('resetBtn').click(); window.scrollTo({top:0,behavior:'smooth'}); });
+
+  addMember(true);
+  updateCode(); validate();
+})();
+</script>
+</body>
+</html>
