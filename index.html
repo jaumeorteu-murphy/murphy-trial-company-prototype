@@ -245,17 +245,9 @@
                 <input data-req name="legalName" placeholder="e.g. Debtia Gestión S.L." />
               </div>
               <div class="field">
-                <label class="lbl">On-behalf-of / display name <span class="opt">(heard in calls &amp; emails)</span></label>
-                <input name="onBehalfOf" placeholder="e.g. BBVA" />
-              </div>
-              <div class="field">
                 <label class="lbl">Company identifier <span class="req">*</span></label>
                 <input data-req data-code name="companyId" placeholder="e.g. debtia" />
                 <span class="help">Lowercase, no spaces — part of the company code.</span>
-              </div>
-              <div class="field">
-                <label class="lbl">On-behalf-of identifier <span class="opt">(optional)</span></label>
-                <input data-code name="oboId" placeholder="e.g. bbva" />
               </div>
               <div class="field">
                 <label class="lbl">Country <span class="req">*</span></label>
@@ -279,10 +271,6 @@
                 </select>
               </div>
               <div class="field">
-                <label class="lbl">VAT number <span class="opt">(optional — default for trial)</span></label>
-                <input name="vat" value="B00000000" />
-              </div>
-              <div class="field">
                 <label class="lbl">Industry <span class="req">*</span></label>
                 <select data-req name="industry">
                   <option value="">Select…</option>
@@ -299,20 +287,9 @@
                 <label class="lbl">Support email <span class="req">*</span></label>
                 <input data-req type="email" name="supportEmail" placeholder="support@prospect.com" />
               </div>
-              <div class="field">
-                <label class="lbl">Support phone <span class="opt">(optional — fallback used if empty)</span></label>
-                <input name="supportPhone" value="+34 900 800 700" />
-              </div>
-              <div class="field">
-                <label class="lbl">Transfer phone <span class="opt">(optional)</span></label>
-                <input name="transferPhone" placeholder="+34 600 000 001" />
-              </div>
-              <div class="field">
-                <label class="lbl">Soft installments max interval (days) <span class="req">*</span></label>
-                <input data-req type="number" name="softDays" value="12" min="1" />
-              </div>
             </div>
             <div class="code-preview"><span class="lbl muted mono">company code →</span> <span class="code-val" id="codePreview">—</span></div>
+            <p class="help" style="margin-top:10px;">VAT, support &amp; transfer phone, display name and payment terms use Murphy trial defaults — not asked here.</p>
           </div>
         </div>
 
@@ -338,16 +315,7 @@
                 <div class="chip-opt" data-val="consumer_finance"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>Consumer finance</div>
               </div>
             </div>
-            <div class="grid">
-              <div class="field">
-                <label class="lbl">Agent voice gender <span class="req">*</span></label>
-                <select data-req name="agentGender">
-                  <option value="">Select…</option>
-                  <option>Female</option><option>Male</option>
-                </select>
-              </div>
-            </div>
-            <div class="help" style="margin-top:12px;">The agent speaks the <b>company language</b> (set in step 1). Murphy selects the matching prepared <b>Mosaic</b> agent — the prospect never picks a specific voice.</div>
+            <div class="help" style="margin-top:12px;">Murphy assigns a prepared <b>Mosaic</b> agent in the <b>company language</b> (set in step 1) with a default voice — no agent questions needed.</div>
           </div>
         </div>
 
@@ -433,7 +401,7 @@
 
   function slug(v){ return (v||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
   function buildCode(){
-    const parts = [slug(form.oboId.value), slug(form.companyId.value), form.country.value].filter(Boolean);
+    const parts = [slug(form.companyId.value), form.country.value].filter(Boolean);
     return parts.length ? parts.join('-') : '';
   }
   function updateCode(){ codePreview.textContent = buildCode() || '—'; }
@@ -485,7 +453,7 @@
       `Create company <span class="code-val">${code}</span>`,
       `Send ${emails.length} invite${emails.length===1?'':'s'} · Trial role · Google/Microsoft`,
       `Create product categories: ${cats.join(', ')}`,
-      `Set up Mosaic agent · ${langLabel()} · ${form.agentGender.value}`,
+      `Set up Mosaic agent · ${langLabel()} · default voice`,
       `Attach shared Murphy phone / SMS / email sender`,
       `Copy policy pack &amp; remap productCategoryId → new categories`,
     ];
@@ -521,7 +489,7 @@
       <div class="row"><span>Members invited</span><b>${emails.length} · Trial role</b></div>
       <div class="row"><span>Login</span><b>Google / Microsoft</b></div>
       <div class="row"><span>Product categories</span><b>${cats.join(', ')}</b></div>
-      <div class="row"><span>Agent</span><b>${langLabel()}, ${form.agentGender.value}</b></div>
+      <div class="row"><span>Agent</span><b>${langLabel()}, default voice</b></div>
       <div class="row"><span>Channels</span><b>Shared Murphy number &amp; senders</b></div>
       <div class="row"><span>Debtor cap</span><b>5 per company</b></div>`;
     setTimeout(()=>{ provView.style.display='none'; successView.style.display='block'; }, 450);
