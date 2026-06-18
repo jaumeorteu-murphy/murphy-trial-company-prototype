@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Murphy · Trial Company — End-to-End Process</title>
+<style>
+  :root{
+    --ink:#14121f; --muted:#6b7280; --faint:#9aa0ab; --line:#e7e6ee; --bg:#f6f5fa; --card:#fff;
+    --violet:#703fff; --violet-soft:#efeaff; --violet-line:#ddd3ff;
+    --green:#0f9d58; --green-soft:#e7f6ee; --amber:#b7791f; --amber-soft:#fdf3e3;
+    --shadow:0 1px 2px rgba(16,24,40,.05),0 10px 28px rgba(16,24,40,.07);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 "Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 26px 80px;}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet);font-weight:700;}
+  h1{font-size:30px;letter-spacing:-.02em;margin:8px 0 6px;}
+  .sub{color:var(--muted);font-size:16px;max-width:760px;margin:0;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:18px;font-size:13px;color:#475569;}
+  .legend span{display:inline-flex;align-items:center;gap:7px;}
+  .dot{width:11px;height:11px;border-radius:3px;}
+  .dot.m{background:var(--violet);} .dot.p{background:var(--green);}
+
+  .stage{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
+    padding:22px 22px 20px;margin-top:20px;position:relative;}
+  .stage-head{display:flex;align-items:center;gap:13px;margin-bottom:6px;}
+  .snum{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-weight:800;font-size:18px;color:#fff;flex:0 0 auto;}
+  .stage.m .snum{background:var(--violet);} .stage.p .snum{background:var(--green);}
+  .stage h2{font-size:20px;margin:0;letter-spacing:-.01em;}
+  .who{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-left:auto;padding:4px 10px;border-radius:999px;}
+  .stage.m .who{background:var(--violet-soft);color:var(--violet);}
+  .stage.p .who{background:var(--green-soft);color:var(--green);}
+  .stage .lead{color:var(--muted);font-size:14px;margin:2px 0 16px 51px;}
+
+  .row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .row.four{grid-template-columns:repeat(5,1fr);}
+  .mini{background:var(--bg);border:1px solid var(--line);border-radius:13px;padding:14px;}
+  .mini .t{font-size:11px;color:var(--faint);font-weight:700;}
+  .mini h3{font-size:14.5px;margin:5px 0 5px;letter-spacing:-.01em;}
+  .mini p{margin:0;font-size:12.5px;color:var(--muted);}
+
+  .arrow{text-align:center;color:#c8c4d6;font-size:22px;margin:4px 0 -8px;}
+
+  /* ICP highlight */
+  .icp{background:var(--violet-soft);border:1px solid var(--violet-line);border-radius:14px;padding:16px 18px;margin:0 0 16px;}
+  .icp .tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--violet);color:#fff;padding:3px 8px;border-radius:6px;margin-bottom:8px;}
+  .icp h3{margin:0 0 4px;font-size:16px;}
+  .icp p{margin:0 0 12px;font-size:13px;color:#4b3a7a;}
+  .icp .qa{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .icp .q{display:flex;align-items:center;gap:8px;font-size:12.5px;background:#fff;border:1px solid var(--violet-line);border-radius:9px;padding:7px 10px;}
+  .icp .q b{color:var(--violet);font-weight:700;white-space:nowrap;}
+  .icp .q .ar{color:var(--faint);}
+
+  /* provision order chips */
+  .prov{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:4px;}
+  .step{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 12px 13px;position:relative;}
+  .step .n{position:absolute;top:-9px;left:12px;width:22px;height:22px;border-radius:7px;background:var(--violet);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;}
+  .step h4{margin:9px 0 4px;font-size:13px;}
+  .step p{margin:0;font-size:11.5px;color:var(--muted);}
+  .step .badge{display:inline-block;margin-top:8px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;}
+  .b-new{background:#e7eefb;color:#2563eb;}
+  .b-share{background:var(--green-soft);color:var(--green);}
+  .b-dedi{background:var(--amber-soft);color:var(--amber);}
+
+  /* remap diagram */
+  .remap{margin-top:16px;border:1px dashed var(--violet-line);border-radius:14px;padding:16px 18px;background:#fbfaff;}
+  .remap h3{margin:0 0 3px;font-size:15px;}
+  .remap .cap{margin:0 0 14px;font-size:12.5px;color:var(--muted);}
+  .map{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;}
+  .col{display:flex;flex-direction:column;gap:8px;}
+  .col .hd{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);text-align:center;}
+  .pcat{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 11px;font-size:12.5px;}
+  .pcat .id{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--faint);}
+  .codepill{font-family:ui-monospace,Menlo,monospace;font-size:11px;background:var(--violet);color:#fff;border-radius:5px;padding:2px 7px;}
+  .joincol{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--violet);}
+  .joincol .lbl{font-size:11px;font-weight:700;}
+  .joincol svg{width:30px;height:30px;}
+  .remap .note{margin:13px 0 0;font-size:12px;color:#4b3a7a;text-align:center;}
+  .remap .note b{color:var(--violet);}
+
+  /* debtor cap */
+  .capbar{display:flex;align-items:center;gap:12px;background:var(--green-soft);border:1px solid #bfe6cd;border-radius:12px;padding:12px 14px;margin-top:14px;}
+  .capbar .big{font-size:20px;font-weight:800;color:var(--green);}
+  .capbar .tx{font-size:13px;color:#1f5135;}
+  .twolayer{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;}
+  .twolayer .l{font-size:11.5px;font-weight:600;background:#fff;border:1px solid #bfe6cd;color:var(--green);border-radius:999px;padding:3px 10px;}
+
+  footer{margin-top:34px;color:var(--muted);font-size:12px;text-align:center;}
+  .links{margin-top:10px;font-size:12.5px;}
+  .links a{color:var(--violet);}
+  @media(max-width:820px){.row,.row.four,.prov,.icp .qa{grid-template-columns:1fr;} .map{flex-direction:column;}}
+  @media print{body{background:#fff;}.stage,.mini{box-shadow:none;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Murphy · Trial Companies</div>
+    <h1>From sign-up to a live recovery demo — in three stages</h1>
+    <p class="sub">How a prospect who isn't a client yet gets their own trial company, has it configured in near-zero time, and loads themselves as a test debtor to watch the full recovery flow run.</p>
+    <div class="legend">
+      <span><span class="dot m"></span> Murphy operates (back office)</span>
+      <span><span class="dot p"></span> Prospect does (front office)</span>
+    </div>
+  </header>
+
+  <!-- STAGE 1 -->
+  <section class="stage m">
+    <div class="stage-head"><span class="snum">1</span><h2>Create the trial company &amp; invite the prospect</h2><span class="who">Murphy</span></div>
+    <p class="lead">One short form, one click — the company exists and the team is invited.</p>
+    <div class="row">
+      <div class="mini"><div class="t">FORM</div><h3>Fill the onboarding form</h3><p>Company details + the team emails to invite + the ICP choices (Stage 2). Already prototyped.</p></div>
+      <div class="mini"><div class="t">ON SUBMIT</div><h3>Create + invite</h3><p>Company is created and every member is invited with the restricted <b>Trial</b> role — one action.</p></div>
+      <div class="mini"><div class="t">ACCESS</div><h3>Prospect logs in</h3><p>Normal Google / Microsoft login. They’re in — the company is empty until Stage 2 configures it.</p></div>
+    </div>
+  </section>
+
+  <div class="arrow">↓</div>
+
+  <!-- STAGE 2 -->
+  <section class="stage m">
+    <div class="stage-head"><span class="snum">2</span><h2>Configure the company — in near-zero time</h2><span class="who">Murphy</span></div>
+    <p class="lead">Answer a few profile questions → the right templates are picked and applied automatically.</p>
+
+    <div class="icp">
+      <span class="tag">New step</span>
+      <h3>ICP mini-form — pick the templates from the prospect’s profile</h3>
+      <p>A handful of questions decide the policy pack, the product categories, and the voice agent — so no one hand-picks low-level config.</p>
+      <div class="qa">
+        <div class="q"><b>Industry</b><span class="ar">→</span> policy pack &amp; tone</div>
+        <div class="q"><b>Debt type</b><span class="ar">→</span> product categories</div>
+        <div class="q"><b>Debtor type</b><span class="ar">→</span> policy &amp; agent wording</div>
+        <div class="q"><b>Market / language</b><span class="ar">→</span> agent language</div>
+        <div class="q"><b>Tone</b><span class="ar">→</span> prepared Mosaic voice</div>
+        <div class="q" style="background:var(--violet);color:#fff;border-color:var(--violet);">= chosen template bundle</div>
+      </div>
+    </div>
+
+    <p class="lead" style="margin-left:0;margin-bottom:8px;"><b>Then auto-provision, in this order</b> (every ID a policy needs must exist first):</p>
+    <div class="prov">
+      <div class="step"><span class="n">1</span><h4>Product categories</h4><p>Created fresh from the catalog.</p><span class="badge b-new">created</span></div>
+      <div class="step"><span class="n">2</span><h4>Voice agent</h4><p>Prepared Mosaic voice, company language.</p><span class="badge b-share">reused</span></div>
+      <div class="step"><span class="n">3</span><h4>SMS + email</h4><p>Shared default senders.</p><span class="badge b-share">reused</span></div>
+      <div class="step"><span class="n">4</span><h4>Phone number</h4><p>Unique — needed for inbound calls.</p><span class="badge b-dedi">dedicated</span></div>
+      <div class="step"><span class="n">5</span><h4>Policies</h4><p>Reference pack, remapped.</p><span class="badge b-new">imported</span></div>
+    </div>
+
+    <div class="remap">
+      <h3>The clever bit: importing policies across companies</h3>
+      <p class="cap">A policy points at a product category by an <b>ID that’s unique per company</b>, so we can’t paste it as-is. We match on the category’s stable <b>code</b> instead — so the right category always lines up.</p>
+      <div class="map">
+        <div class="col">
+          <div class="hd">Reference pack</div>
+          <div class="pcat">Credit cards <span class="id">id&nbsp;src-CC</span></div>
+          <div class="pcat">Loans <span class="id">id&nbsp;src-LO</span></div>
+        </div>
+        <div class="joincol">
+          <div class="lbl">match on code</div>
+          <span class="codepill">credit_cards</span>
+          <span class="codepill">loans</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </div>
+        <div class="col">
+          <div class="hd">New trial company</div>
+          <div class="pcat">Credit cards <span class="id">id&nbsp;new-CC</span></div>
+          <div class="pcat">Loans <span class="id">id&nbsp;new-LO</span></div>
+        </div>
+      </div>
+      <p class="note">Every policy filter is rewritten <b>src-CC → new-CC</b>, <b>src-LO → new-LO</b>. Join on the <b>code</b>, never the ID or the name. If a code can’t be matched, we stop and flag it — never drop a policy silently.</p>
+    </div>
+  </section>
+
+  <div class="arrow">↓</div>
+
+  <!-- STAGE 3 -->
+  <section class="stage p">
+    <div class="stage-head"><span class="snum">3</span><h2>Load test debtors &amp; watch it run</h2><span class="who">Prospect</span></div>
+    <p class="lead">The prospect adds themselves in seconds — modelled on the fast CLI loader — and the recovery flow fires.</p>
+    <div class="row">
+      <div class="mini"><div class="t">PRE-FILLED</div><h3>Add yourself fast</h3><p>Email defaults to your own; surname, ID and amount auto-filled. Just pick a product category.</p></div>
+      <div class="mini"><div class="t">REAL CONTACT</div><h3>Use your real phone</h3><p>“Use my real number” → you receive the actual call, SMS and email the strategy sends.</p></div>
+      <div class="mini"><div class="t">END TO END</div><h3>Watch the campaign</h3><p>The full multi-touchpoint recovery flow runs — call + SMS + email — not just a single call.</p></div>
+    </div>
+    <div class="capbar">
+      <span class="big">5</span>
+      <div>
+        <div class="tx">Test debtors per trial company — enough to see it work, capped so it stays a trial.</div>
+        <div class="twolayer"><span class="l">UI shows “n of 5”, disables at 5</span><span class="l">Server rejects the 6th</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Murphy · Trial company end-to-end process — companion to the technical build plan (<em>murphy-trial-company-build-plan.md</em>). Draft for discussion.
+    <div class="links">Related prototypes: trial-company form · add-debtor (front office) · call-flow (agent behavior).</div>
+  </footer>
+
+</div>
+</body>
+</html>
